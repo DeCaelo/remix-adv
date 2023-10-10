@@ -6,7 +6,8 @@ import invariant from "tiny-invariant";
 import { createCustomer } from "~/models/customer.server";
 import { requireUser } from "~/session.server";
 import { Label } from "~/components/ui/label";
-import { inputClasses, submitButtonClasses } from "~/styles";
+import { inputClasses } from "~/styles";
+import { Button } from "~/components/ui/button";
 
 export async function action({ request }: ActionFunctionArgs) {
   await requireUser(request);
@@ -51,14 +52,9 @@ export default function NewCustomer() {
         </div>
 
         <div>
-          <button
-            type="submit"
-            name="intent"
-            value="create"
-            className={submitButtonClasses}
-          >
+          <Button type="submit" name="intent" value="create">
             Create Customer
-          </button>
+          </Button>
         </div>
       </Form>
     </div>

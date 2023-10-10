@@ -15,7 +15,8 @@ import { createDeposit } from "~/models/deposit.server";
 import invariant from "tiny-invariant";
 import { ErrorFallback } from "~/components/ErrorFallback";
 import { Label } from "~/components/ui/label";
-import { inputClasses, submitButtonClasses } from "~/styles";
+import { inputClasses } from "~/styles";
+import { Button } from "~/components/ui/button";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -111,7 +112,7 @@ export default function InvoiceRoute() {
     <div className="relative p-10" key={location.key}>
       <Link
         to={`../../customers/${data.customerId}`}
-        className="text-[length:14px] font-bold leading-6 text-blue-600 underline"
+        className="text-[length:14px] font-bold leading-6 underline"
       >
         {data.customerName}
       </Link>
@@ -161,10 +162,7 @@ function Deposits() {
       {data.deposits.length > 0 ? (
         data.deposits.map((deposit) => (
           <div key={deposit.id} className={lineItemClassName}>
-            <Link
-              to={`../../deposits/${deposit.id}`}
-              className="text-blue-600 underline"
-            >
+            <Link to={`../../deposits/${deposit.id}`} className=" underline">
               {deposit.depositDateFormatted}
             </Link>
             <div>{currencyFormatter.format(deposit.amount)}</div>
@@ -221,14 +219,9 @@ function Deposits() {
             />
           </div>
           <div className="flex items-end">
-            <button
-              type="submit"
-              className={submitButtonClasses}
-              name="intent"
-              value="create-deposit"
-            >
+            <Button type="submit" name="intent" value="create-deposit">
               Create
-            </button>
+            </Button>
           </div>
         </div>
       </form>

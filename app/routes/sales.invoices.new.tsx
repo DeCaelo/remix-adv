@@ -9,8 +9,9 @@ import { createInvoice } from "~/models/invoice.server";
 import { parseDate } from "~/utils";
 import { CustomerCombobox } from "./resources.customers";
 import { Label } from "~/components/ui/label";
-import { inputClasses, submitButtonClasses } from "~/styles";
+import { inputClasses } from "~/styles";
 import { Minus, Plus } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -144,14 +145,9 @@ export default function NewInvoice() {
         </div>
         <LineItems />
         <div>
-          <button
-            type="submit"
-            name="intent"
-            value="create"
-            className={submitButtonClasses}
-          >
+          <Button type="submit" name="intent" value="create" className="w-full">
             Create Invoice
-          </button>
+          </Button>
         </div>
       </Form>
     </div>

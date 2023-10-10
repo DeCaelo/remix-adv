@@ -62,7 +62,7 @@ export default function InvoicesRoute() {
 
   return (
     <div className="relative">
-      <h1 className="font-display text-d-h3 text-black">Sales</h1>
+      <h1 className="font-display text-d-h3">Sales</h1>
       <div className="h-6" />
       <Tabs defaultValue="overview" className="w-[600px]">
         <TabsList className="grid w-full grid-cols-5">
@@ -120,9 +120,9 @@ export default function InvoicesRoute() {
       <div className="flex items-center justify-between gap-4">
         <InvoicesInfo label="Overdue" amount={data.overdueAmount} />
         <div className="flex h-4 flex-1 overflow-hidden rounded-full">
-          <div className="bg-yellow-brand flex-1" />
+          <div className="bg-theme-700 flex-1" />
           <div
-            className="bg-green-brand"
+            className="bg-theme-400"
             style={{ width: `${dueSoonPercent}%` }}
           />
         </div>
@@ -150,7 +150,7 @@ function InvoicesInfo({
   return (
     <div className={right ? "text-right" : ""}>
       <Label>{label}</Label>
-      <div className="text-[length:18px] text-black">
+      <div className="text-[length:18px] text-theme-500">
         {currencyFormatter.format(amount)}
       </div>
     </div>
@@ -160,15 +160,15 @@ function InvoicesInfo({
 function InvoiceList({ children }: { children: React.ReactNode }) {
   const { invoiceListItems } = useLoaderData<typeof loader>();
   return (
-    <div className="flex overflow-hidden rounded-lg border border-gray-100">
-      <div className="w-1/2 border-r border-gray-100">
+    <div className="flex overflow-hidden rounded-lg border ">
+      <div className="w-1/2 border-r ">
         <NavLink
           to="new"
           prefetch="intent"
           className={({ isActive }) =>
-            "block border border-gray-100 py-3 px-4 hover:bg-gray-50" +
+            "block border  py-3 px-4 hover:bg-theme-50" +
             " " +
-            (isActive ? "bg-gray-50" : "")
+            (isActive ? "bg-theme-50" : "")
           }
         >
           <span className="flex gap-1">
@@ -182,9 +182,9 @@ function InvoiceList({ children }: { children: React.ReactNode }) {
               to={invoice.id}
               prefetch="intent"
               className={({ isActive }) =>
-                "block border-b border-gray-50 py-3 px-4 hover:bg-gray-50" +
+                "block border-b py-3 px-4 hover:bg-theme-50" +
                 " " +
-                (isActive ? "bg-gray-50" : "")
+                (isActive ? "bg-theme-50" : "")
               }
             >
               <div className="flex justify-between text-[length:14px] font-bold leading-6">
@@ -198,9 +198,9 @@ function InvoiceList({ children }: { children: React.ReactNode }) {
                     "uppercase" +
                     " " +
                     (invoice.dueStatus === "paid"
-                      ? "text-green-brand"
+                      ? "text-theme-300"
                       : invoice.dueStatus === "overdue"
-                      ? "text-red-brand"
+                      ? "text-theme-700"
                       : "")
                   }
                 >
