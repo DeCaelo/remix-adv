@@ -10,8 +10,9 @@ import { parseDate } from "~/utils";
 import { CustomerCombobox } from "./resources.customers";
 import { Label } from "~/components/ui/label";
 import { inputClasses } from "~/styles";
-import { Minus, Plus } from "lucide-react";
+import { MinusSquare, PlusSquare } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -179,7 +180,7 @@ function LineItems() {
           type="button"
           onClick={() => setLineItems((lis) => [...lis, generateRandomId()])}
         >
-          <Plus />
+          <PlusSquare />
         </button>
       </div>
     </div>
@@ -201,10 +202,11 @@ function LineItemFormFields({
     <fieldset key={lineItemClientId} className="border-b-2 py-2">
       <div className="flex gap-2">
         <button type="button" title="Remove Line Item" onClick={onRemoveClick}>
-          <Minus />
+          <MinusSquare />
         </button>
         <legend>Line Item {index + 1}</legend>
       </div>
+      <Separator className="my-4" />
       <input value={lineItemClientId} name="lineItemId" type="hidden" />
       <div className="flex flex-col gap-1">
         <div className="flex w-full gap-2">

@@ -18,7 +18,7 @@ export default function SalesPage() {
       </header>
 
       <main className="flex h-full">
-        <div className="flex flex-col font-bold text-gray-800">
+        <div className="flex flex-col font-bold text-theme-800">
           <NavItem to="dashboard">Dashboard</NavItem>
           <NavItem to="accounts">Accounts</NavItem>
           <NavItem to="sales">Sales</NavItem>

@@ -1,5 +1,4 @@
 import { Outlet, useMatches } from "@remix-run/react";
-
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, NavLink } from "@remix-run/react";

@@ -38,6 +38,7 @@ module.exports = {
           700: "hsl(var(--color-theme-700) / <alpha-value>)",
           800: "hsl(var(--color-theme-800) / <alpha-value>)",
           900: "hsl(var(--color-theme-900) / <alpha-value>)",
+          950: "hsl(var(--color-theme-950) / <alpha-value>)",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
