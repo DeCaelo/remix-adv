@@ -9,6 +9,9 @@ import { requireUser } from "~/session.server";
 import { Label } from "~/components/ui/label";
 import { FolderPlus } from "lucide-react";
 import { getFirstCustomer } from "~/models/customer.server";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Separator } from "~/components/ui/separator";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -61,37 +64,59 @@ export default function InvoicesRoute() {
     <div className="relative">
       <h1 className="font-display text-d-h3 text-black">Sales</h1>
       <div className="h-6" />
-      <div className="flex gap-4 border-b border-gray-100 pb-4 text-[length:14px] font-medium text-gray-400">
-        <NavLink to="." className={linkClassName({ isActive: indexMatches })}>
-          Overview
-        </NavLink>
-        <NavLink prefetch="intent" to="subscriptions" className={linkClassName}>
-          Subscriptions
-        </NavLink>
-        <NavLink
-          prefetch="intent"
-          to={
-            data.firstInvoiceId ? `invoices/${data.firstInvoiceId}` : "invoices"
-          }
-          className={linkClassName({ isActive: invoiceMatches })}
-        >
-          Invoices
-        </NavLink>
-        <NavLink
-          prefetch="intent"
-          to={
-            data.firstCustomerId
-              ? `customers/${data.firstCustomerId}`
-              : "Customers"
-          }
-          className={linkClassName({ isActive: customerMatches })}
-        >
-          Customers
-        </NavLink>
-        <NavLink prefetch="intent" to="deposits" className={linkClassName}>
-          Deposits
-        </NavLink>
-      </div>
+      <Tabs defaultValue="overview" className="w-[600px]">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">
+            <NavLink
+              to="."
+              className={linkClassName({ isActive: indexMatches })}
+            >
+              Overview
+            </NavLink>
+          </TabsTrigger>
+          <TabsTrigger value="subscriptions">
+            <NavLink
+              prefetch="intent"
+              to="subscriptions"
+              className={linkClassName}
+            >
+              Subscriptions
+            </NavLink>
+          </TabsTrigger>
+          <TabsTrigger value="invoices">
+            <NavLink
+              prefetch="intent"
+              to={
+                data.firstInvoiceId
+                  ? `invoices/${data.firstInvoiceId}`
+                  : "invoices"
+              }
+              className={linkClassName({ isActive: invoiceMatches })}
+            >
+              Invoices
+            </NavLink>
+          </TabsTrigger>
+          <TabsTrigger value="customers">
+            <NavLink
+              prefetch="intent"
+              to={
+                data.firstCustomerId
+                  ? `customers/${data.firstCustomerId}`
+                  : "Customers"
+              }
+              className={linkClassName({ isActive: customerMatches })}
+            >
+              Customers
+            </NavLink>
+          </TabsTrigger>
+          <TabsTrigger value="deposits">
+            <NavLink prefetch="intent" to="deposits" className={linkClassName}>
+              Deposits
+            </NavLink>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <Separator className="my-4" />
       <div className="flex items-center justify-between gap-4">
         <InvoicesInfo label="Overdue" amount={data.overdueAmount} />
         <div className="flex h-4 flex-1 overflow-hidden rounded-full">
@@ -103,7 +128,7 @@ export default function InvoicesRoute() {
         </div>
         <InvoicesInfo label="Due Soon" amount={data.dueSoonAmount} right />
       </div>
-      <div className="h-4" />
+      <Separator className="my-4" />
       <Label>Invoice List</Label>
       <div className="h-2" />
       <InvoiceList>
@@ -141,7 +166,7 @@ function InvoiceList({ children }: { children: React.ReactNode }) {
           to="new"
           prefetch="intent"
           className={({ isActive }) =>
-            "block border-b-4 border-gray-100 py-3 px-4 hover:bg-gray-50" +
+            "block border border-gray-100 py-3 px-4 hover:bg-gray-50" +
             " " +
             (isActive ? "bg-gray-50" : "")
           }
@@ -150,7 +175,7 @@ function InvoiceList({ children }: { children: React.ReactNode }) {
             <FolderPlus /> <span>Create new invoice</span>
           </span>
         </NavLink>
-        <div className="max-h-96 overflow-y-scroll">
+        <ScrollArea className="h-80 w-full rounded-md border">
           {invoiceListItems.map((invoice) => (
             <NavLink
               key={invoice.id}
@@ -184,7 +209,7 @@ function InvoiceList({ children }: { children: React.ReactNode }) {
               </div>
             </NavLink>
           ))}
-        </div>
+        </ScrollArea>
       </div>
       <div className="w-1/2">{children}</div>
     </div>
