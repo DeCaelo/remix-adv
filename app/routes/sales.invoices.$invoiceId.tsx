@@ -19,6 +19,9 @@ import { Label } from "~/components/ui/label";
 import { inputClasses } from "~/styles";
 import { Button } from "~/components/ui/button";
 import { useEffect, useRef } from "react";
+import { Badge } from "~/components/ui/badge";
+import { Input } from "~/components/ui/input";
+import { CalendarCheck, Zap } from "lucide-react";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -107,6 +110,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 const lineItemClassName =
   "flex justify-between border-t boder-theme-300 py-4 text-[14px] leading-[24px]";
+
 export default function InvoiceRoute() {
   const data = useLoaderData<typeof loader>();
   const location = useLocation();
@@ -118,7 +122,7 @@ export default function InvoiceRoute() {
       >
         {data.customerName}
       </Link>
-      <div className="text-[length:32px] font-bold leading-[40px]">
+      <div className="text-[length:32px] font-bold leading-[40px] mb-3">
         {currencyFormatter.format(data.totalAmount)}
       </div>
       <Label>
@@ -131,9 +135,16 @@ export default function InvoiceRoute() {
               : ""
           }
         >
-          {data.dueDisplay}
+          <Badge
+            variant={data.dueStatus === "paid" ? "secondary" : "destructive"}
+          >
+            <Zap size="16" className="mr-1" /> {data.dueDisplay.toUpperCase()}
+          </Badge>
         </span>
-        {` • Invoiced ${data.invoiceDateDisplay}`}
+        <Badge variant="secondary" className="ml-2">
+          <CalendarCheck size="16" className="mr-1" />
+          {`INVOICED ${data.invoiceDateDisplay}`}
+        </Badge>
       </Label>
       <div className="h-4" />
       {data.lineItems.map((item) => (
@@ -180,6 +191,9 @@ function Deposits() {
     formRef.current.reset();
   }, [newDepositFetcher.state]);
 
+  const errors: { amount: string; depositDate: string } | undefined =
+    newDepositFetcher.data?.errors ?? "";
+
   return (
     <div>
       <div className="font-bold leading-8">Deposits</div>
@@ -200,43 +214,56 @@ function Deposits() {
         method="post"
         className="grid grid-cols-1 gap-x-4 gap-y-2 lg:grid-cols-2"
         ref={formRef}
+        noValidate
       >
         <div className="min-w-[100px]">
-          <div className="flex flex-wrap items-center gap-1">
-            <Label>
-              <label htmlFor="depositAmount">Amount</label>
-            </Label>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="depositAmount">Amount</Label>
+            {errors?.amount ? (
+              <em id="amount-error" className="text-d-p-xs text-red-600">
+                {errors.amount}
+              </em>
+            ) : null}
+
+            <Input
+              id="depositAmount"
+              name="amount"
+              type="number"
+              className={inputClasses}
+              min="0.01"
+              step="any"
+              required
+              aria-invalid={Boolean(errors?.amount) || undefined}
+              aria-errormessage={errors?.amount ? "amount-error" : undefined}
+            />
           </div>
-          <input
-            id="depositAmount"
-            name="amount"
-            type="number"
-            className={inputClasses}
-            min="0.01"
-            step="any"
-            required
-          />
         </div>
         <div>
-          <div className="flex flex-wrap items-center gap-1">
-            <Label>
-              <label htmlFor="depositDate">Date</label>
-            </Label>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="depositDate">Date</Label>
+            {errors?.depositDate ? (
+              <em id="depositDate-error" className="text-d-p-xs text-red-600">
+                {errors.depositDate}
+              </em>
+            ) : null}
+
+            <Input
+              id="depositDate"
+              name="depositDate"
+              type="date"
+              className={`${inputClasses} h-[34px]`}
+              required
+              aria-invalid={Boolean(errors?.depositDate) || undefined}
+              aria-errormessage={
+                errors?.depositDate ? "depositDate-error" : undefined
+              }
+            />
           </div>
-          <input
-            id="depositDate"
-            name="depositDate"
-            type="date"
-            className={`${inputClasses} h-[34px]`}
-            required
-          />
         </div>
         <div className="grid grid-cols-1 gap-4 lg:col-span-2 lg:flex">
           <div className="flex-1">
-            <Label>
-              <label htmlFor="depositNote">Note</label>
-            </Label>
-            <input
+            <Label htmlFor="depositNote">Note</Label>
+            <Input
               id="depositNote"
               name="note"
               type="text"
@@ -249,6 +276,7 @@ function Deposits() {
               name="intent"
               value="create-deposit"
               disabled={submitting}
+              variant="secondary"
             >
               {submitting ? "Creating..." : "Create"}
             </Button>
