@@ -52,10 +52,10 @@ export default function InvoicesRoute() {
   const hundo = data.dueSoonAmount + data.overdueAmount;
   const dueSoonPercent = Math.floor((data.dueSoonAmount / hundo) * 100);
   const matches = useMatches();
-  const indexMatches = matches.some((m) => m.id === "routes/sales/index");
-  const invoiceMatches = matches.some((m) => m.id === "routes/sales/invoices");
+  const indexMatches = matches.some((m) => m.id === "routes/sales");
+  const invoiceMatches = matches.some((m) => m.id === "routes/sales.invoices");
   const customerMatches = matches.some(
-    (m) => m.id === "routes/sales/customers",
+    (m) => m.id === "routes/sales.customers",
   );
 
   return (
@@ -100,7 +100,7 @@ export default function InvoicesRoute() {
               to={
                 data.firstCustomerId
                   ? `customers/${data.firstCustomerId}`
-                  : "Customers"
+                  : "customers"
               }
               className={linkClassName({ isActive: customerMatches })}
             >
