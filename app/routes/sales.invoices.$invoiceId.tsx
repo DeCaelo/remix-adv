@@ -161,8 +161,9 @@ function Deposits() {
   const deposits = [...data.deposits];
   const submitting = newDepositFetcher.state === "submitting";
   if (submitting) {
-    const formAmount = newDepositFetcher.formData?.get("amount");
+    const formAmount = Number(newDepositFetcher.formData?.get("amount"));
     const formDepositDate = newDepositFetcher.formData?.get("depositDate");
+
     if (typeof formAmount === "number" && typeof formDepositDate === "string") {
       deposits.push({
         id: "new",
