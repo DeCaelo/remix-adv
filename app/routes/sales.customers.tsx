@@ -11,6 +11,7 @@ import { useSpinDelay } from "spin-delay";
 import { requireUser } from "~/session.server";
 import { getCustomerListItems } from "~/models/customer.server";
 import { PlusSquare } from "lucide-react";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 type LoadingCustomer = Awaited<ReturnType<typeof getCustomerListItems>>[number];
 
@@ -43,16 +44,16 @@ export default function Customers() {
           to="new"
           prefetch="intent"
           className={({ isActive }) =>
-            "block border-b-4 border-gray-100 py-3 px-4 hover:bg-gray-50" +
+            "block border-b-4 border-theme-100 py-3 px-4 hover:bg-theme-50" +
             " " +
-            (isActive ? "bg-gray-50" : "")
+            (isActive ? "bg-theme-50" : "")
           }
         >
           <span className="flex gap-1">
             <PlusSquare /> <span>Create new customer</span>
           </span>
         </NavLink>
-        <div className="max-h-96 overflow-y-scroll">
+        <ScrollArea className="max-h-96">
           {customers.map((customer) => (
             <NavLink
               key={customer.id}
@@ -60,20 +61,20 @@ export default function Customers() {
               state={{ customer }}
               prefetch="intent"
               className={({ isActive }) =>
-                "block border-b border-gray-50 py-3 px-4 hover:bg-gray-50" +
+                "block border-b border-theme-50 py-3 px-4 hover:bg-theme-50" +
                 " " +
-                (isActive ? "bg-gray-50" : "")
+                (isActive ? "bg-theme-50" : "")
               }
             >
               <div className="flex justify-between text-[length:14px] font-bold leading-6">
                 <div>{customer.name}</div>
               </div>
-              <div className="flex justify-between text-[length:12px] font-medium leading-4 text-gray-400">
+              <div className="flex justify-between text-[length:12px] font-medium leading-4 text-theme-400">
                 <div>{customer.email}</div>
               </div>
             </NavLink>
           ))}
-        </div>
+        </ScrollArea>
       </div>
       <div className="flex w-1/2 flex-col justify-between">
         {loadingCustomer && showSkeleton ? (

@@ -62,6 +62,7 @@ export default function InvoicesRoute() {
     <div className="relative">
       <h1 className="font-display text-d-h3">Sales</h1>
       <div className="h-6" />
+      {/* TODO: dynamic defaultValue */}
       <Tabs defaultValue="overview" className="w-[600px]">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">
