@@ -102,13 +102,13 @@ function CustomerSkeleton({ name, email }: { name: string; email: string }) {
       <div className="text-m-h3 font-bold leading-8">Invoices</div>
       <div className="h-4" />
       <div>
-        <div className="flex h-[56px] items-center border-t border-gray-100">
-          <div className="h-[14px] w-full animate-pulse rounded bg-gray-300">
+        <div className="flex h-[56px] items-center border-t border-theme-100">
+          <div className="h-[14px] w-full animate-pulse rounded bg-theme-300">
             &nbsp;
           </div>
         </div>
-        <div className="flex h-[56px] items-center border-t border-gray-100">
-          <div className="h-[14px] w-full animate-pulse rounded bg-gray-300">
+        <div className="flex h-[56px] items-center border-t border-theme-100">
+          <div className="h-[14px] w-full animate-pulse rounded bg-theme-300">
             &nbsp;
           </div>
         </div>

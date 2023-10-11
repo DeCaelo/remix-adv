@@ -18,6 +18,7 @@ import { ErrorFallback } from "~/components/ErrorFallback";
 import { Label } from "~/components/ui/label";
 import { inputClasses } from "~/styles";
 import { Button } from "~/components/ui/button";
+import { useEffect, useRef } from "react";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   await requireUser(request);
@@ -155,13 +156,35 @@ export default function InvoiceRoute() {
 
 function Deposits() {
   const data = useLoaderData<typeof loader>();
+  const formRef = useRef<HTMLFormElement>(null);
   const newDepositFetcher = useFetcher();
+  const deposits = [...data.deposits];
+  const submitting = newDepositFetcher.state === "submitting";
+  if (submitting) {
+    const formAmount = newDepositFetcher.formData?.get("amount");
+    const formDepositDate = newDepositFetcher.formData?.get("depositDate");
+    if (typeof formAmount === "number" && typeof formDepositDate === "string") {
+      deposits.push({
+        id: "new",
+        amount: formAmount,
+        depositDateFormatted: parseDate(formDepositDate).toLocaleDateString(),
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (!formRef.current) return;
+    if (newDepositFetcher.state !== "idle") return;
+    if (newDepositFetcher.state === "idle") {
+      formRef.current.reset();
+    }
+  }, [newDepositFetcher.state]);
 
   return (
     <div>
       <div className="font-bold leading-8">Deposits</div>
-      {data.deposits.length > 0 ? (
-        data.deposits.map((deposit) => (
+      {deposits.length > 0 ? (
+        deposits.map((deposit) => (
           <div key={deposit.id} className={lineItemClassName}>
             <Link to={`../../deposits/${deposit.id}`} className=" underline">
               {deposit.depositDateFormatted}
@@ -176,6 +199,7 @@ function Deposits() {
       <newDepositFetcher.Form
         method="post"
         className="grid grid-cols-1 gap-x-4 gap-y-2 lg:grid-cols-2"
+        ref={formRef}
       >
         <div className="min-w-[100px]">
           <div className="flex flex-wrap items-center gap-1">
@@ -220,8 +244,13 @@ function Deposits() {
             />
           </div>
           <div className="flex items-end">
-            <Button type="submit" name="intent" value="create-deposit">
-              Create
+            <Button
+              type="submit"
+              name="intent"
+              value="create-deposit"
+              disabled={submitting}
+            >
+              {submitting ? "Creating..." : "Create"}
             </Button>
           </div>
         </div>
