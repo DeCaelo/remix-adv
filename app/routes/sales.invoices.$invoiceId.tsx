@@ -104,7 +104,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 const lineItemClassName =
-  "flex justify-between border-t border-gray-100 py-4 text-[14px] leading-[24px]";
+  "flex justify-between border-t boder-theme-300 py-4 text-[14px] leading-[24px]";
 export default function InvoiceRoute() {
   const data = useLoaderData<typeof loader>();
   const location = useLocation();

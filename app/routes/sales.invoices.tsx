@@ -1,7 +1,6 @@
-import { Outlet, useMatches } from "@remix-run/react";
+import { Outlet, useMatches, useLoaderData, NavLink } from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, NavLink } from "@remix-run/react";
 import { getFirstInvoice, getInvoiceListItems } from "~/models/invoice.server";
 import { currencyFormatter } from "~/utils";
 import { requireUser } from "~/session.server";
@@ -159,15 +158,15 @@ function InvoicesInfo({
 function InvoiceList({ children }: { children: React.ReactNode }) {
   const { invoiceListItems } = useLoaderData<typeof loader>();
   return (
-    <div className="flex overflow-hidden rounded-lg border ">
+    <div className="flex overflow-hidden rounded-lg border">
       <div className="w-1/2 border-r ">
         <NavLink
           to="new"
           prefetch="intent"
           className={({ isActive }) =>
-            "block border  py-3 px-4 hover:bg-theme-50" +
+            "block border py-3 px-4 hover:bg-theme-200" +
             " " +
-            (isActive ? "bg-theme-50" : "")
+            (isActive ? "bg-theme-200" : "")
           }
         >
           <span className="flex gap-1">
@@ -181,16 +180,16 @@ function InvoiceList({ children }: { children: React.ReactNode }) {
               to={invoice.id}
               prefetch="intent"
               className={({ isActive }) =>
-                "block border-b py-3 px-4 hover:bg-theme-50" +
+                "block border-b py-3 px-4 hover:bg-theme-200" +
                 " " +
-                (isActive ? "bg-theme-50" : "")
+                (isActive ? "bg-theme-200" : "")
               }
             >
               <div className="flex justify-between text-[length:14px] font-bold leading-6">
                 <div>{invoice.name}</div>
                 <div>{currencyFormatter.format(invoice.totalAmount)}</div>
               </div>
-              <div className="flex justify-between text-[length:12px] font-medium leading-4 text-gray-400">
+              <div className="flex justify-between text-[length:12px] font-medium leading-4 text-theme-400">
                 <div>{invoice.number}</div>
                 <div
                   className={

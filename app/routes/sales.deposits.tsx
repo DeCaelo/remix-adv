@@ -23,27 +23,27 @@ export default function Deposits() {
   const depositNotFound =
     depositId && data.deposits.every((d) => d.id !== depositId);
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200">
+    <div className="overflow-hidden rounded-lg border border-theme-300">
       {depositNotFound ? (
         <div className="p-12 text-red-500">
           No deposit found with the ID of "{depositId}"
         </div>
       ) : null}
       <table className="w-full">
-        <thead className="border-b-2 border-gray-200">
+        <thead className="border-b-2 border-theme-300">
           <tr>
-            <th className="border border-gray-100 py-2 px-4"></th>
-            <th className="border border-gray-100 py-2 px-4">Date</th>
-            <th className="border border-gray-100 py-2 px-4">Invoice</th>
-            <th className="border border-gray-100 py-2 px-4">Customer</th>
-            <th className="border border-gray-100 py-2 px-4">Amount</th>
+            <th className="border border-theme-300 py-2 px-4"></th>
+            <th className="border border-theme-300 py-2 px-4">Date</th>
+            <th className="border border-theme-300 py-2 px-4">Invoice</th>
+            <th className="border border-theme-300 py-2 px-4">Customer</th>
+            <th className="border border-theme-300 py-2 px-4">Amount</th>
           </tr>
         </thead>
         <tbody className="max-h-[100px]">
           {data.deposits.map((d) => (
             <React.Fragment key={d.id}>
               <tr>
-                <td className="border border-gray-100 py-2 px-4">
+                <td className="border border-theme-300 py-2 px-4">
                   <Link
                     to={d.id === depositId ? "." : d.id}
                     className="flex justify-center"
@@ -55,26 +55,26 @@ export default function Deposits() {
                     />
                   </Link>
                 </td>
-                <td className="border border-gray-100 py-2 px-4">
+                <td className="border border-theme-300 py-2 px-4">
                   {d.depositDateFormatted}
                 </td>
-                <td className="border border-gray-100 py-2 px-4">
+                <td className="border border-theme-300 py-2 px-4">
                   <Link
-                    className="text-blue-600 underline"
+                    className="text-theme-600 underline"
                     to={`../invoices/${d.invoice.id}`}
                   >
                     {d.invoice.number}
                   </Link>
                 </td>
-                <td className="border border-gray-100 py-2 px-4">
+                <td className="border border-theme-300 py-2 px-4">
                   <Link
-                    className="text-blue-600 underline"
+                    className="text-theme-600 underline"
                     to={`../customers/${d.invoice.customer.id}`}
                   >
                     {d.invoice.customer.name}
                   </Link>
                 </td>
-                <td className="border border-gray-100 py-2 px-4">
+                <td className="border border-theme-300 py-2 px-4">
                   {currencyFormatter.format(d.amount)}
                 </td>
               </tr>

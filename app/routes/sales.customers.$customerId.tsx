@@ -33,7 +33,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 }
 
-const lineItemClassName = "border-t border-gray-100 text-[14px] h-[56px]";
+const lineItemClassName = "border-t boder-theme-300 text-[14px] h-[56px]";
 
 export default function CustomerRoute() {
   const data = useLoaderData<typeof loader>();
@@ -55,7 +55,7 @@ export default function CustomerRoute() {
             <tr key={invoiceDetails.id} className={lineItemClassName}>
               <td>
                 <Link
-                  className="text-blue-600 underline"
+                  className="text-theme-600 underline"
                   to={`../../invoices/${invoiceDetails.id}`}
                 >
                   {invoiceDetails.number}
