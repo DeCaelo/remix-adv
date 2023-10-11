@@ -9,7 +9,7 @@ export default function SalesPage() {
     <div className="flex h-full min-h-screen flex-col">
       <header className="flex items-center justify-between p-4 ">
         <h1 className="text-3xl font-bold">
-          <Link to=".">Invoices</Link>
+          <Link to="invoices">Invoices</Link>
         </h1>
         <p>{user.email}</p>
         <Form action="/logout" method="post">
