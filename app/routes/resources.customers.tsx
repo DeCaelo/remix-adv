@@ -13,14 +13,22 @@ type CustomerSearchResult = {
   customers: Awaited<ReturnType<typeof searchCustomers>>;
 };
 
+// ressource route => not export default route
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUser(request);
   const url = new URL(request.url);
   const query = url.searchParams.get("query");
   invariant(typeof query === "string", "query is required");
-  return json<CustomerSearchResult>({
-    customers: await searchCustomers(query),
-  });
+  return json<CustomerSearchResult>(
+    {
+      customers: await searchCustomers(query),
+    },
+    {
+      headers: {
+        "Cache-Control": "max-age-30",
+      },
+    },
+  );
 }
 
 type Customer = CustomerSearchResult["customers"][number];
@@ -43,6 +51,7 @@ export function CustomerCombobox({ error }: { error?: string | null }) {
     items: customers,
     itemToString: (item) => (item ? item.name : ""),
     onInputValueChange: (changes) => {
+      // imperative data fetching => cannot be done without JS
       if (!changes.inputValue) return;
 
       customerFetcher.submit(
@@ -86,7 +95,7 @@ export function CustomerCombobox({ error }: { error?: string | null }) {
       <ul
         {...cb.getMenuProps({
           className: clsx(
-            "absolute z-10 bg-white shadow-lg rounded-b w-full border border-t-0 border-gray-500 max-h-[180px] overflow-scroll",
+            "absolute z-10 bg-theme-100 shadow-lg rounded-b w-full border border-t-0 border-theme-500 max-h-[180px] overflow-scroll",
             { hidden: !displayMenu },
           ),
         })}
@@ -95,7 +104,7 @@ export function CustomerCombobox({ error }: { error?: string | null }) {
           ? customers.map((customer, index) => (
               <li
                 className={clsx("cursor-pointer py-1 px-2", {
-                  "bg-green-200": cb.highlightedIndex === index,
+                  "bg-theme-200": cb.highlightedIndex === index,
                 })}
                 key={customer.id}
                 {...cb.getItemProps({ item: customer, index })}
