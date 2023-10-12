@@ -29,7 +29,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   switch (intent) {
     case "delete": {
       await deleteDeposit(depositId);
-      return redirect("/sales/deposits");
+      return redirect("/sales/invoices/deposits");
     }
     default: {
       throw new Error(`Unsupported intent: ${intent}`);

@@ -9,7 +9,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!firstInvoice) {
     return json({});
   }
-  return redirect(`/sales/invoices/${firstInvoice.id}`);
+  return redirect(`/sales/invoices/invoices/${firstInvoice.id}`);
 }
 
 export default function InvoiceIndex() {

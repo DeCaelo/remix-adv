@@ -13,7 +13,7 @@ export default function SalesPage() {
     <div className="flex h-full min-h-screen flex-col">
       <header className="flex items-center justify-between p-4">
         <h1 className="text-3xl font-bold flex items-center justify-center">
-          <Link to="invoices">Invoices</Link>
+          <Link to="/sales/invoices/subscriptions">Invoices</Link>
           {showSpinner ? (
             <Loader className="w-4 h-4 ml-2 mt-2 animate-spin" />
           ) : null}

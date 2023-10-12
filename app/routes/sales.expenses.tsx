@@ -7,8 +7,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({});
 }
 
-export default function Subscriptions() {
-  return (
-    <div className="flex items-center justify-center">Woo. Subs. Money.</div>
-  );
+export default function ExpensesRoute() {
+  return <div>Hope you don't have a lot of these...</div>;
 }

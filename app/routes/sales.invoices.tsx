@@ -85,7 +85,11 @@ export default function InvoicesRoute() {
           <TabsTrigger value="invoices">
             <NavLink
               prefetch="intent"
-              to={data.firstInvoiceId ? `${data.firstInvoiceId}` : "invoices"}
+              to={
+                data.firstInvoiceId
+                  ? `invoices/${data.firstInvoiceId}`
+                  : "invoices"
+              }
               className={linkClassName({ isActive: invoiceMatches })}
             >
               Invoices

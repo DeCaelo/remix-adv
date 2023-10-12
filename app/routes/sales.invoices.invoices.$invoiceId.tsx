@@ -212,7 +212,10 @@ function Deposits() {
       {deposits.length > 0 ? (
         deposits.map((deposit) => (
           <div key={deposit.id} className={lineItemClassName}>
-            <Link to={`../../deposits/${deposit.id}`} className=" underline">
+            <Link
+              to={`/sales/invoices/deposits/${deposit.id}`}
+              className=" underline"
+            >
               {deposit.depositDateFormatted}
             </Link>
             <div>{currencyFormatter.format(deposit.amount)}</div>
