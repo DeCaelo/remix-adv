@@ -184,18 +184,27 @@ function Deposits() {
     }
   }
 
-  useEffect(() => {
-    if (!formRef.current) return;
-    if (newDepositFetcher.state !== "idle") return;
-
-    formRef.current.reset();
-  }, [newDepositFetcher.state]);
-
   const errors = (
     newDepositFetcher.data as unknown as {
       errors?: { amount: string; depositDate: string };
     }
   )?.errors;
+
+  useEffect(() => {
+    if (!formRef.current) return;
+    if (newDepositFetcher.state !== "idle") return;
+
+    if (errors?.amount) {
+      (formRef.current.elements as any).amount?.focus();
+    } else if (errors?.depositDate) {
+      (formRef.current.elements as any).depositDate?.focus();
+    } else if (
+      document.activeElement === (formRef.current.elements as any).intent
+    ) {
+      (formRef.current.elements as any).amount?.focus();
+      formRef.current.reset();
+    }
+  }, [newDepositFetcher.state, errors]);
 
   return (
     <div>
