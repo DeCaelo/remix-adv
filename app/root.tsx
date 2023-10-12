@@ -8,11 +8,25 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  ShouldRevalidateFunction,
+  useLoaderData,
+  useLocation,
+  useSubmit,
 } from "@remix-run/react";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./components/ui/alert-dialog";
+import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -24,6 +38,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function App() {
+  const { user } = useLoaderData<typeof loader>();
   return (
     <html lang="en" className="h-full">
       <head>
@@ -34,6 +49,7 @@ export default function App() {
       </head>
       <body className="h-full bg-theme-100">
         <Outlet />
+        {user ? <LogoutTimer /> : null}
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
@@ -60,3 +76,68 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
   return false;
 };
+
+function LogoutTimer() {
+  const [status, setStatus] = useState<"idle" | "show-modal">("idle");
+  const location = useLocation();
+  const submit = useSubmit();
+  // const logoutTime = 1000 * 60 * 60 * 24;
+  // const modalTime = logoutTime - 1000 * 60 * 2;
+  const logoutTime = 15000;
+  const modalTime = 10000;
+  const modalTimer = useRef<ReturnType<typeof setTimeout>>();
+  const logoutTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const logout = useCallback(() => {
+    submit(
+      { redirectTo: location.pathname },
+      { method: "post", action: "/logout" },
+    );
+  }, [submit, location.pathname]);
+
+  const cleanupTimers = useCallback(() => {
+    clearTimeout(modalTimer.current);
+    clearTimeout(logoutTimer.current);
+  }, []);
+
+  const resetTimers = useCallback(() => {
+    cleanupTimers();
+    modalTimer.current = setTimeout(() => {
+      setStatus("show-modal");
+    }, modalTime);
+    logoutTimer.current = setTimeout(logout, logoutTime);
+  }, [cleanupTimers, logout, logoutTime, modalTime]);
+
+  useEffect(() => resetTimers(), [resetTimers, location.key]);
+  useEffect(() => cleanupTimers, [cleanupTimers]);
+
+  function closeModal() {
+    setStatus("idle");
+    resetTimers();
+  }
+
+  return (
+    <AlertDialog
+      aria-label="Pending Logout Notification"
+      open={status === "show-modal"}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you still there?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You are going to be logged out due to inactivity. Close this modal
+            to stay logged in.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <Button variant={"destructive"} onClick={logout}>
+            Logout
+          </Button>
+          <AlertDialogAction onClick={closeModal}>
+            Remain Logged In
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
