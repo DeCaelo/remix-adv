@@ -1,15 +1,22 @@
-import { Form, Link, NavLink, Outlet } from "@remix-run/react";
+import { Form, Link, NavLink, Outlet, useNavigation } from "@remix-run/react";
+import { Loader } from "lucide-react";
+import { useSpinDelay } from "spin-delay";
 import { Button } from "~/components/ui/button";
 import { useUser } from "~/utils";
 
 export default function SalesPage() {
   const user = useUser();
+  const navigation = useNavigation();
+  const showSpinner = useSpinDelay(navigation.state !== "idle");
 
   return (
     <div className="flex h-full min-h-screen flex-col">
-      <header className="flex items-center justify-between p-4 ">
-        <h1 className="text-3xl font-bold">
+      <header className="flex items-center justify-between p-4">
+        <h1 className="text-3xl font-bold flex items-center justify-center">
           <Link to="invoices">Invoices</Link>
+          {showSpinner ? (
+            <Loader className="w-4 h-4 ml-2 mt-2 animate-spin" />
+          ) : null}
         </h1>
         <p>{user.email}</p>
         <Form action="/logout" method="post">
