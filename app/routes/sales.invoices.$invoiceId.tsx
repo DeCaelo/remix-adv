@@ -194,15 +194,15 @@ function Deposits() {
     if (!formRef.current) return;
     if (newDepositFetcher.state !== "idle") return;
 
+    const formEl = formRef.current;
+
     if (errors?.amount) {
-      (formRef.current.elements as any).amount?.focus();
+      (formEl.elements as any).amount?.focus();
     } else if (errors?.depositDate) {
-      (formRef.current.elements as any).depositDate?.focus();
-    } else if (
-      document.activeElement === (formRef.current.elements as any).intent
-    ) {
-      (formRef.current.elements as any).amount?.focus();
-      formRef.current.reset();
+      (formEl.elements as any).depositDate?.focus();
+    } else {
+      (formEl.elements as any).amount?.focus();
+      formEl.reset();
     }
   }, [newDepositFetcher.state, errors]);
 
