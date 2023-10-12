@@ -178,7 +178,7 @@ function InvoiceList({ children }: { children: React.ReactNode }) {
           {invoiceListItems.map((invoice) => (
             <NavLink
               key={invoice.id}
-              to={invoice.id}
+              to={`invoices/${invoice.id}`}
               prefetch="intent"
               className={({ isActive }) =>
                 "block border-b py-3 px-4 hover:bg-theme-200" +

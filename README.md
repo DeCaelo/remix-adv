@@ -1,174 +1,149 @@
-# Remix Indie Stack
+# 09. Defer
 
-![The Remix Indie Stack](https://repository-images.githubusercontent.com/465928257/a241fa49-bd4d-485a-a2a5-5cb8e4ee0abf)
+## 📝 Notes
 
-Learn more about [Remix Stacks](https://remix.run/stacks).
+## 🤓 Background
 
-```sh
-npx create-remix@latest --template remix-run/indie-stack
+Sometimes, it's not our customer's Network connection that's the problem, but
+it's own own slow backend that's the problem. In that case, you should try the
+following improvements:
+
+- Speed up the slow thing (😅).
+  - Optimize DB queries.
+  - Add caching (LRU, Redis, etc).
+  - Use a different data source.
+- Load data concurrently loading with `Promise.all`
+
+Additionally, if initial page load is not a critical metric for your
+application, you can also explore the following options that can improve the
+perceived performance of your application client side only:
+
+- Use the [`prefetch` prop on `<Link />`][link].
+- Add a global transition spinner.
+- Add a localized skeleton UI.
+
+We've already implemented these last three improvements on the client. Let's
+just pretend for some reason we can't speed up our backend or cache its result.
+In that case, despite our best efforts, our users will still have a sub-optimal
+experience with our `$customerId` route. Because the `customers` parent route is
+responsible for rendering the skeleton UI, we only get the skeleton UI if the
+parent route is rendered. There are two situations where that's not the case:
+
+1. When transitioning from a completely different part of the app
+2. When loading the app directly on a specific customer
+
+In both of these cases, the user doesn't get to see any UI update until the
+slowest bit of data is finished loading. This is not great.
+
+Normally, what people do at this point is load the data in the client. This just
+doesn't make sense to server render if it means users have to wait for the slow
+data before they can see and interact with _anything_. In fact, we've got an
+example of this implemented in `examples/client-side-fetching`. You'll notice
+that it's actually not too bad as far as the code is concerned. The unfortunate
+bit here is that we have a stair-step waterfall with that:
+
+```
+document -> JavaScript -> Data......
 ```
 
-## What's in the stack
+With React 18 streaming, Remix can do better. We can use Remix's `defer` API and
+`Await` component! This gives us:
 
-- [Fly app deployment](https://fly.io) with [Docker](https://www.docker.com/)
-- Production-ready [SQLite Database](https://sqlite.org)
-- Healthcheck endpoint for [Fly backups region fallbacks](https://fly.io/docs/reference/configuration/#services-http_checks)
-- [GitHub Actions](https://github.com/features/actions) for deploy on merge to production and staging environments
-- Email/Password Authentication with [cookie-based sessions](https://remix.run/utils/sessions#md-createcookiesessionstorage)
-- Database ORM with [Prisma](https://prisma.io)
-- Styling with [Tailwind](https://tailwindcss.com/)
-- End-to-end testing with [Cypress](https://cypress.io)
-- Local third party request mocking with [MSW](https://mswjs.io)
-- Unit testing with [Vitest](https://vitest.dev) and [Testing Library](https://testing-library.com)
-- Code formatting with [Prettier](https://prettier.io)
-- Linting with [ESLint](https://eslint.org)
-- Static Types with [TypeScript](https://typescriptlang.org)
-
-Not a fan of bits of the stack? Fork it, change it, and use `npx create-remix --template your/repo`! Make it your own.
-
-## Quickstart
-
-Click this button to create a [Gitpod](https://gitpod.io) workspace with the project set up and Fly pre-installed
-
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/remix-run/indie-stack/tree/main)
-
-## Development
-
-- Initial setup:
-
-  ```sh
-  npm run setup
-  ```
-
-- Start dev server:
-
-  ```sh
-  npm run dev
-  ```
-
-This starts your app in development mode, rebuilding assets on file changes.
-
-The database seed script creates a new user with some data you can use to get started:
-
-- Email: `rachel@remix.run`
-- Password: `racheliscool`
-
-### Relevant code:
-
-This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating users, logging in and out, and creating and deleting notes.
-
-- creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
-- user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
-- creating, and deleting notes [./app/models/note.server.ts](./app/models/note.server.ts)
-
-## Deployment
-
-This Remix Stack comes with two GitHub Actions that handle automatically deploying your app to production and staging environments.
-
-Prior to your first deployment, you'll need to do a few things:
-
-- [Install Fly](https://fly.io/docs/getting-started/installing-flyctl/)
-
-- Sign up and log in to Fly
-
-  ```sh
-  fly auth signup
-  ```
-
-  > **Note:** If you have more than one Fly account, ensure that you are signed into the same account in the Fly CLI as you are in the browser. In your terminal, run `fly auth whoami` and ensure the email matches the Fly account signed into the browser.
-
-- Create two apps on Fly, one for staging and one for production:
-
-  ```sh
-  fly apps create remix-adv-0cab
-  fly apps create remix-adv-0cab-staging
-  ```
-
-  > **Note:** Make sure this name matches the `app` set in your `fly.toml` file. Otherwise, you will not be able to deploy.
-
-  - Initialize Git.
-
-  ```sh
-  git init
-  ```
-
-- Create a new [GitHub Repository](https://repo.new), and then add it as the remote for your project. **Do not push your app yet!**
-
-  ```sh
-  git remote add origin <ORIGIN_URL>
-  ```
-
-- Add a `FLY_API_TOKEN` to your GitHub repo. To do this, go to your user settings on Fly and create a new [token](https://web.fly.io/user/personal_access_tokens/new), then add it to [your repo secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) with the name `FLY_API_TOKEN`.
-
-- Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
-
-  ```sh
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app remix-adv-0cab
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app remix-adv-0cab-staging
-  ```
-
-  If you don't have openssl installed, you can also use [1Password](https://1password.com/password-generator) to generate a random secret, just replace `$(openssl rand -hex 32)` with the generated secret.
-
-- Create a persistent volume for the sqlite database for both your staging and production environments. Run the following:
-
-  ```sh
-  fly volumes create data --size 1 --app remix-adv-0cab
-  fly volumes create data --size 1 --app remix-adv-0cab-staging
-  ```
-
-Now that everything is set up you can commit and push your changes to your repo. Every commit to your `main` branch will trigger a deployment to your production environment, and every commit to your `dev` branch will trigger a deployment to your staging environment.
-
-### Connecting to your database
-
-The sqlite database lives at `/data/sqlite.db` in your deployed application. You can connect to the live database by running `fly ssh console -C database-cli`.
-
-### Getting Help with Deployment
-
-If you run into any issues deploying to Fly, make sure you've followed all of the steps above and if you have, then post as many details about your deployment (including your app name) to [the Fly support community](https://community.fly.io). They're normally pretty responsive over there and hopefully can help resolve any of your deployment issues and questions.
-
-## GitHub Actions
-
-We use GitHub Actions for continuous integration and deployment. Anything that gets into the `main` branch will be deployed to production after running tests/build/etc. Anything in the `dev` branch will be deployed to staging.
-
-## Testing
-
-### Cypress
-
-We use Cypress for our End-to-End tests in this project. You'll find those in the `cypress` directory. As you make changes, add to an existing file or create a new file in the `cypress/e2e` directory to test your changes.
-
-We use [`@testing-library/cypress`](https://testing-library.com/cypress) for selecting elements on the page semantically.
-
-To run these tests in development, run `npm run test:e2e:dev` which will start the dev server for the app as well as the Cypress client. Make sure the database is running in docker as described above.
-
-We have a utility for testing authenticated features without having to go through the login flow:
-
-```ts
-cy.login();
-// you are now logged in as a new user
+```
+document -> JavaScript
+.. Data ..... ->
 ```
 
-We also have a utility to auto-delete the user at the end of your test. Just make sure to add this in each test file:
+With this approach, the data request happens at the same time as everything else
+happening on the server and the result is ultimately streamed in when it's
+ready. This makes that initial load happen considerably faster. And what's more,
+the API is fantastic.
 
-```ts
-afterEach(() => {
-  cy.cleanupUser();
-});
+Example of all of this in action.
+
+```tsx
+import { Suspense } from "react"; // <-- using Suspense
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { defer } from "@remix-run/node"; // <-- using a special defer function
+import { Await, useLoaderData } from "@remix-run/react"; // <-- using an Await component
+
+import { getPackageLocation } from "~/models/packages";
+
+export function loader({ params }: LoaderFunctionArgs) {
+  // NOTE: getPackageLocation returns a promise, but we're *not* awaiting it!!
+  const packageLocationPromise = getPackageLocation(params.packageId);
+
+  return defer({
+    packageLocation: packageLocationPromise, // <-- we pass a promise to defer
+  });
+}
+
+export default function PackageRoute() {
+  const data = useLoaderData<typeof loader>();
+
+  return (
+    <main>
+      <h1>Let's locate your package</h1>
+      <Suspense fallback={<p>Loading package location...</p>}>
+        <Await
+          // PROMISE TELEPORTATION OVER THE NETWORK!
+          resolve={data.packageLocation} // <-- this is a promise!
+          errorElement={<p>Error loading package location!</p>}
+        >
+          {/* Render props are back! */}
+          {(packageLocation) => (
+            <p>
+              Your package is at {packageLocation.latitude} lat and{" "}
+              {packageLocation.longitude} long.
+            </p>
+          )}
+        </Await>
+      </Suspense>
+    </main>
+  );
+}
 ```
 
-That way, we can keep your local db clean and keep your tests isolated from one another.
+This will do exactly what you hope it will. When the browser makes a request for
+the document, we kick off the `getPackageLocation` right away, but we don't wait
+for it to finish. We send a response with Suspense fallback in place. The
+browser's document request HTTP connection will stay open because the response
+is being streamed. When our `packageLocationPromise` finally resolves, then the
+result is streamed to the browser on that HTTP connection and Remix triggers a
+re-render of the app with the resolved data.
 
-### Vitest
+This will speed up our experience beyond what a client-side fetch could do, and
+the API is killer. You can switch between streaming and waiting by simply
+adding/removing the `await` keyword in front of the promise. You can even do
+this at runtime if you want to do some A/B testing or you know based on the data
+whether it's worth waiting for or not.
 
-For lower level tests of utilities and individual components, we use `vitest`. We have DOM-specific assertion helpers via [`@testing-library/jest-dom`](https://testing-library.com/jest-dom).
+This is what we mean when we talk about "levers". Want a high Time To First Byte
+(TTFB) and don't mind a little Content Layout Shift (CLS)? Then `defer` more of
+your loader data! Do spinners and CLS make you sick to your stomach and you
+don't mind waiting for slow backends? The use `json`. Want a great TTFB and now
+CLS? Speed up your backend or cache it!
 
-### Type Checking
+An important note about this is that to use this feature, your host needs to
+support streaming and your `entry.server.tsx` file needs to be configured to
+stream the response using React's `renderToPipeableStream` rather than
+`renderToString`. We already have this configured in our entry so we're good to
+go.
 
-This project uses TypeScript. It's recommended to get TypeScript set up for your editor to get a really great in-editor experience with type checking and auto-complete. To run type checking across the whole project, run `npm run typecheck`.
+Unfortunately (as of August 2022), any hosting offering that wraps AWS Lambda
+will not support streaming as AWS Lambda currently buffers the response until
+it's finished and then sends it (defeating the purpose of streaming). This rules
+out Netlify Functions and Vercel Functions. However, Netlify and Vercel each
+have offerings that wrap Deno and Cloudflare respectively which _do_ support
+streaming. Node.js in a docker container should stream no-problem. Just be sure
+that you know whether your host supports streaming before you attempt to use
+this API.
 
-### Linting
+## 💪 Exercise
 
-This project uses ESLint for linting. That is configured in `.eslintrc.js`.
+Let's implement the `defer`, `Suspense`, and `Await` APIs on our `$customerId`
+route so we can get the best loading experience possible for our slow data.
 
-### Formatting
+## 🗃 Files
 
-We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `npm run format` script you can run to format all files in the project.
+- `app/routes/__app/sales/customers/$customerId.tsx`

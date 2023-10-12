@@ -1,16 +1,19 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { defer, json } from "@remix-run/node";
 import {
+  Await,
   Link,
   isRouteErrorResponse,
   useLoaderData,
   useParams,
   useRouteError,
 } from "@remix-run/react";
+import { Suspense } from "react";
 import invariant from "tiny-invariant";
 import { ErrorFallback } from "~/components/ErrorFallback";
 import { getCustomerInfo, getCustomerDetails } from "~/models/customer.server";
 import { requireUser } from "~/session.server";
+import { InvoiceDetailsFallback } from "~/styles";
 import { currencyFormatter } from "~/utils";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -20,16 +23,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     typeof customerId === "string",
     "params.customerId is not available",
   );
-  const [customerInfo, customerDetails] = await Promise.all([
-    getCustomerInfo(customerId),
-    getCustomerDetails(customerId),
-  ]);
-  if (!customerDetails || !customerInfo) {
+  // fast
+  const customerInfo = await getCustomerInfo(customerId);
+  // defer slow
+  const customerDetailsPromise = getCustomerDetails(customerId);
+  // 103 Early Hints: https://developer.mozilla.org/fr/docs/Web/HTTP/Status/103
+
+  if (!customerInfo) {
     throw json({ type: "CustomError", message: "not found" }, { status: 404 });
   }
-  return json({
+
+  return defer({
     customerInfo,
-    customerDetails,
+    customerDetails: customerDetailsPromise,
   });
 }
 
@@ -49,38 +55,47 @@ export default function CustomerRoute() {
       <div className="h-4" />
       <div className="text-m-h3 font-bold leading-8">Invoices</div>
       <div className="h-4" />
-      <table className="w-full">
-        <tbody>
-          {data.customerDetails.invoiceDetails.map((invoiceDetails) => (
-            <tr key={invoiceDetails.id} className={lineItemClassName}>
-              <td>
-                <Link
-                  className="text-theme-600 underline"
-                  to={`../../invoices/${invoiceDetails.id}`}
-                >
-                  {invoiceDetails.number}
-                </Link>
-              </td>
-              <td
-                className={
-                  "text-center uppercase" +
-                  " " +
-                  (invoiceDetails.dueStatus === "paid"
-                    ? "text-green-brand"
-                    : invoiceDetails.dueStatus === "overdue"
-                    ? "text-red-brand"
-                    : "")
-                }
-              >
-                {invoiceDetails.dueStatusDisplay}
-              </td>
-              <td className="text-right">
-                {currencyFormatter.format(invoiceDetails.totalAmount)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Suspense fallback={<InvoiceDetailsFallback />}>
+        <Await
+          resolve={data.customerDetails}
+          errorElement={<ErrorFallback>Something went wrong</ErrorFallback>}
+        >
+          {(customerDetails) => (
+            <table className="w-full">
+              <tbody>
+                {customerDetails?.invoiceDetails.map((invoiceDetails) => (
+                  <tr key={invoiceDetails.id} className={lineItemClassName}>
+                    <td>
+                      <Link
+                        className="text-theme-600 underline"
+                        to={`../../invoices/${invoiceDetails.id}`}
+                      >
+                        {invoiceDetails.number}
+                      </Link>
+                    </td>
+                    <td
+                      className={
+                        "text-center uppercase" +
+                        " " +
+                        (invoiceDetails.dueStatus === "paid"
+                          ? "text-green-brand"
+                          : invoiceDetails.dueStatus === "overdue"
+                          ? "text-red-brand"
+                          : "")
+                      }
+                    >
+                      {invoiceDetails.dueStatusDisplay}
+                    </td>
+                    <td className="text-right">
+                      {currencyFormatter.format(invoiceDetails.totalAmount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Await>
+      </Suspense>
     </div>
   );
 }
