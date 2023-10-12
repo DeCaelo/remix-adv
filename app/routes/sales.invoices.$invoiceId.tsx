@@ -191,8 +191,11 @@ function Deposits() {
     formRef.current.reset();
   }, [newDepositFetcher.state]);
 
-  const errors: { amount: string; depositDate: string } | undefined =
-    newDepositFetcher.data?.errors ?? "";
+  const errors = (
+    newDepositFetcher.data as unknown as {
+      errors?: { amount: string; depositDate: string };
+    }
+  )?.errors;
 
   return (
     <div>
